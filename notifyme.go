@@ -78,7 +78,10 @@ func main() {
 	})
 
 	for _, notifier := range notifiers {
-		notifier.Notify()
+		err := notifier.Notify()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error sending notification: %s", err)
+		}
 	}
 
 	// Exit and use the same user's command exitCode

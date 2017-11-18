@@ -7,5 +7,5 @@ type Notification struct {
 }
 
 type Notifier interface {
-	Notify()
+	Notify() error
 }

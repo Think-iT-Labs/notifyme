@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 )
 
@@ -14,8 +15,17 @@ type Messenger struct {
 	Notification
 }
 
-func (m Messenger) Notify() {
+var ErrWrongToken = errors.New("Wrong token, please verify you have the right token in your ~/.notifyme file or ask the bot to get a new one")
+
+func (m Messenger) Notify() error {
 	var output bytes.Buffer
 	json.NewEncoder(&output).Encode(m)
-	http.Post(endpoint, "application/json", bufio.NewReader(&output))
+	res, err := http.Post(endpoint, "application/json", bufio.NewReader(&output))
+	if err != nil {
+		return err
+	}
+	if res.StatusCode == http.StatusNotFound {
+		return ErrWrongToken
+	}
+	return nil
 }
