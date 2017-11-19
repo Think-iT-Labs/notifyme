@@ -1,11 +1,11 @@
-package notifier
+package notification
 
-type Notification struct {
+type NotificationData struct {
 	Cmd      string `json:"cmd"`
 	ExitCode int    `json:"exit_code"`
 	Logs     []byte `json:"logs"`
 }
 
-type Notifier interface {
-	Notify() error
+type Notification interface {
+	Send() error
 }

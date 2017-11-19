@@ -28,7 +28,7 @@ Once done, `get` the code by running:
 go get github.com/think-it-labs/clinotify.me
 ```
 
-NOTE: the command above will download the repo into your `GOPATH` and build it for you. Resulting binary can be found in `$GOPATH/bin`
+**NOTE**: the command above will download the repo into your `GOPATH` and build it for you. Resulting binary can be found in `$GOPATH/bin`
 ### Prebuild binary
 
 ## Notifiers
@@ -36,20 +36,25 @@ For now only Messenger is implemented as a notifier. Feel free to hack into the 
 ### Messenger
 By using Messenger notifier you will get notified via Facebook messenger.
 
-First you need to get your `token` by talking to the [clinotifier.me](https://www.facebook.com/clinotify.me/) Chat Bot. This can be done by sending `code` to the bot as shown in picture below:
+First you need to get your `token` by talking to the [clinotifier.me](https://www.facebook.com/clinotify.me/) Chat Bot. This can be done by sending `token` or `code` to the bot as shown in picture below:
 <p align="center">
     <img height=450 src=".github/MessengerCode.png">
 </p>
 
-Now that you have your token, edit your `~/.notifyme` config file so it looks like this:
+Now that you have your token, edit your `~/.notifyme` config file and add it to `messenger_tokens` list:
 
 ```json
 {
-    "messenger_token": "YOUR_TOKEN_HERE",
+    ...
+    "messenger_tokens": [
+        ...
+        "YOUR_TOKEN_HERE"
+    ],
+    ...
 }
 ```
 
-NOTE: You can get your token again if needed by sending `code` again to the Chat Bot
+**NOTE** You can get your token again if needed by sending `token` or `code` again to the Chat Bot
 
 ## Usage
 
