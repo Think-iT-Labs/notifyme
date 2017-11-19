@@ -15,7 +15,18 @@ import (
 	"github.com/kr/pty"
 	"github.com/think-it-labs/clinotify.me/config"
 	"github.com/think-it-labs/clinotify.me/notifier"
+
+	log "github.com/sirupsen/logrus"
 )
+
+func init() {
+	// Setup the logger
+	debugModeEnabled := strings.ToLower(os.Getenv("DEBUG")) == "true"
+	if debugModeEnabled {
+		log.SetLevel(log.DebugLevel)
+	}
+
+}
 
 func main() {
 
@@ -33,7 +44,15 @@ func main() {
 	}
 
 	shell := os.Getenv("SHELL")
-	cmd := exec.Command(shell, "-i", "-c", strings.Join(userCmd, " "))
+	args := []string{
+		"-i",
+		"-c",
+		strings.Join(userCmd, " "),
+	}
+	cmd := exec.Command(shell, args...)
+
+	argsLog := sliceString(args)
+	log.Debugf("Command: %s %s", shell, argsLog)
 
 	var exitCode int
 
@@ -80,7 +99,7 @@ func main() {
 	for _, notifier := range notifiers {
 		err := notifier.Notify()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error sending notification: %s", err)
+			log.Errorf("Error sending notification: %s", err)
 		}
 	}
 
@@ -101,4 +120,10 @@ Please make sure you have the file ~/.notifyme and that it's content looks like:
 func exitUsage() {
 	fmt.Printf("%s CMD_HERE ARG1 ARG2 ...\n", os.Args[0])
 	os.Exit(2)
+}
+
+func sliceString(slice []string) string {
+	sliceStr := fmt.Sprintf("%s", slice)[1:]
+	sliceStr = sliceStr[:len(sliceStr)-1]
+	return sliceStr
 }
