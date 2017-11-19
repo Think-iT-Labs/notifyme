@@ -13,6 +13,7 @@
 * [Usage](#usage)
 * [Notifiers](#notifiers)
     * [Messenger](#messenger)
+* [Use cases](#use-cases)
 * [Todo](#todo)
 * [License](#license)
 
@@ -64,11 +65,20 @@ For example to get notified when a Make build finish the command will looks like
 ```
 $ notifyme make -j 4
 ```
+## Use Cases
+Use cases for `notify.me` are uncountable, but here is some tasks regulary developers wants to be notified about their status, 
 
+- Cron jobs
+- Long running builds
+- Backups
+- etc.
+
+`climotify.me` is making your life simpler? tell us how are you using it :smile: !
 
 ## Todo
 
 - Add flags through environment variables
+- Enrich the configuration and add filters (e.g: only send erroned commands)
 - Support other notifiers
     - Slack
 - Add a re-execute functionality
