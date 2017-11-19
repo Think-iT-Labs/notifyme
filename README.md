@@ -1,5 +1,5 @@
 <div align="center">
-    <h2>clinotify.me</h2>
+    <h2>NotifyMe</h2>
     <p align="center">
         <p>Get notified when your command finish executing</p>
     </p>
@@ -21,11 +21,11 @@
 
 ### Build from source
 
-`clinotify.me` client is written in Golang, to build it from source you need to have `go` installed and your `GOPATH` configured (default to `~/go` in go 1.9)
+`NotifyMe` client is written in Golang, to build it from source you need to have `go` installed and your `GOPATH` configured (default to `~/go` in go 1.9)
 
 Once done, `get` the code by running:
 ```shell
-go get github.com/think-it-labs/clinotify.me
+go get github.com/think-it-labs/notifyme
 ```
 
 **NOTE**: the command above will download the repo into your `GOPATH` and build it for you. Resulting binary can be found in `$GOPATH/bin`
@@ -36,7 +36,7 @@ For now only Messenger is implemented as a notifier. Feel free to hack into the 
 ### Messenger
 By using Messenger notifier you will get notified via Facebook messenger.
 
-First you need to get your `token` by talking to the [clinotifier.me](https://www.facebook.com/clinotify.me/) Chat Bot. This can be done by sending `token` or `code` to the bot as shown in picture below:
+First you need to get your `token` by talking to the [NotifyMe](https://www.facebook.com/clinotify.me/) Chat Bot. This can be done by sending `token` or `code` to the bot as shown in picture below:
 <p align="center">
     <img height=450 src=".github/MessengerCode.png">
 </p>
@@ -71,14 +71,14 @@ For example to get notified when a Make build finish the command will looks like
 $ notifyme make -j 4
 ```
 ## Use Cases
-Use cases for `notify.me` are uncountable, but here is some tasks regulary developers wants to be notified about their status, 
+Use cases for `NotifyMe` are uncountable, but here is some tasks regulary developers wants to be notified about their status, 
 
 - Cron jobs
 - Long running builds
 - Backups
 - etc.
 
-`climotify.me` is making your life simpler? tell us how are you using it :smile: !
+`NotifyMe` is making your life simpler? tell us how are you using it :smile: !
 
 ## Todo
 

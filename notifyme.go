@@ -14,8 +14,8 @@ import (
 	"path/filepath"
 
 	"github.com/kr/pty"
-	"github.com/think-it-labs/clinotify.me/config"
-	"github.com/think-it-labs/clinotify.me/notification"
+	"github.com/think-it-labs/notifyme/config"
+	"github.com/think-it-labs/notifyme/notification"
 
 	log "github.com/sirupsen/logrus"
 )
