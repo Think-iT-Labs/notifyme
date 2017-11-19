@@ -43,7 +43,7 @@ First you need to get your `token` by talking to the [clinotifier.me](https://ww
 
 Now that you have your token, edit your `~/.notifyme` config file and add it to `messenger_tokens` list:
 
-```json
+```
 {
     ...
     "messenger_tokens": [
@@ -54,7 +54,7 @@ Now that you have your token, edit your `~/.notifyme` config file and add it to 
 }
 ```
 
-**NOTE** You can get your token again if needed by sending `token` or `code` again to the Chat Bot
+**NOTE**: You can get your token again if needed by sending `token` or `code` again to the Chat Bot
 
 ## Usage
 
