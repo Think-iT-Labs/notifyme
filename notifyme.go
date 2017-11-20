@@ -67,14 +67,22 @@ func main() {
 
 	var exitCode int
 
-	f, _ := pty.Start(cmd)
+	tty, err := pty.Start(cmd)
+	if err != nil {
+		log.Fatalf("Cannot start the command with a new tty: %s\n", err)
+	}
+	defer tty.Close()
+
+	go func() {
+		io.Copy(tty, os.Stdin)
+	}()
 
 	// Create a buffer and add it to a multiwriter
 	var output bytes.Buffer
 	dataWriter := io.MultiWriter(os.Stdout, &output)
 
 	// Copy tty output to our multiwriter
-	io.Copy(dataWriter, f)
+	io.Copy(dataWriter, tty)
 
 	// Wait for the process to exit and get it's status code
 	err = cmd.Wait()
