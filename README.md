@@ -28,8 +28,15 @@ Once done, `get` the code by running:
 go get github.com/think-it-labs/notifyme
 ```
 
-**NOTE**: the command above will download the repo into your `GOPATH` and build it for you. Resulting binary can be found in `$GOPATH/bin`
+**NOTE**: the command above will download the repo into your `GOPATH` and build it for you. Resulting binary can be found in `$GOPATH/bin`, we do recommend adding `$GOPATH/bin` to your `$PATH.`
 ### Prebuild binary
+
+Prebuild binaries are available for both MacOS and Linux, and they come in two flavors 32 bits and 64 bits. Download links can be found the table below
+
+| Tables        | Linux           | MacOS  |
+| ------------- |:-------------:|:-----:|
+| 32 bits      | [Download](https://s3.amazonaws.com/clinotify.me/notifyme_linux32) | [Download](https://s3.amazonaws.com/clinotify.me/notifyme_darwin32) |
+| 64 bits      | [Download](https://s3.amazonaws.com/clinotify.me/notifyme_linux64)      |   [Download](https://s3.amazonaws.com/clinotify.me/notifyme_darwin64) |
 
 ## Notifiers
 For now only Messenger is implemented as a notifier. Feel free to hack into the project  and implement other notifiers.
@@ -73,9 +80,9 @@ $ notifyme make -j 4
 ## Use Cases
 Use cases for `NotifyMe` are uncountable, but here is some tasks regulary developers wants to be notified about their status, 
 
-- Cron jobs
-- Long running builds
-- Backups
+- Cron jobs,
+- Long running builds,
+- Backups,
 - etc.
 
 `NotifyMe` is making your life simpler? tell us how are you using it :smile: !
