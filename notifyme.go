@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/user"
 	"strings"
 	"sync"
-	"syscall"
 
 	"path/filepath"
 
-	"github.com/kr/pty"
+	"github.com/think-it-labs/notifyme/command"
 	"github.com/think-it-labs/notifyme/config"
 	"github.com/think-it-labs/notifyme/notification"
 
@@ -54,20 +52,10 @@ func main() {
 		exitUsage()
 	}
 
-	shell := os.Getenv("SHELL")
-	args := []string{
-		"-i",
-		"-c",
-		strings.Join(userCmd, " "),
-	}
-	cmd := exec.Command(shell, args...)
+	cmd := command.New(userCmd)
+	log.Debugf("Command: %s", strings.Join(userCmd, " "))
 
-	argsLog := sliceString(args)
-	log.Debugf("Command: %s %s", shell, argsLog)
-
-	var exitCode int
-
-	tty, err := pty.Start(cmd)
+	tty, err := cmd.StartWithTTY()
 	if err != nil {
 		log.Fatalf("Cannot start the command with a new tty: %s\n", err)
 	}
@@ -85,20 +73,7 @@ func main() {
 	io.Copy(dataWriter, tty)
 
 	// Wait for the process to exit and get it's status code
-	err = cmd.Wait()
-	if err != nil {
-		// try to get the exit code
-		if exitError, ok := err.(*exec.ExitError); ok {
-			ws := exitError.Sys().(syscall.WaitStatus)
-			exitCode = ws.ExitStatus()
-		} else {
-			exitCode = 1 // default exit code
-		}
-	} else {
-		// success, exitCode should be 0 if go is ok
-		ws := cmd.ProcessState.Sys().(syscall.WaitStatus)
-		exitCode = ws.ExitStatus()
-	}
+	exitCode := cmd.Wait()
 
 	// Build the notification
 	notificationData := notification.NotificationData{
@@ -137,6 +112,7 @@ func main() {
 
 	}
 	wg.Wait()
+
 	// Exit and use the same user's command exitCode
 	os.Exit(exitCode)
 }
