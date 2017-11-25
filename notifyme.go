@@ -128,7 +128,7 @@ func main() {
 	wg.Add(len(notifications))
 	for _, notif := range notifications {
 		go func(n notification.Notification) {
-			err := notif.Send()
+			err := n.Send()
 			if err != nil {
 				log.Errorf("Error sending notification: %s", err)
 			}
