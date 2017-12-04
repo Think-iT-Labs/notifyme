@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"os/user"
 	"strings"
@@ -11,6 +9,7 @@ import (
 
 	"path/filepath"
 
+	isatty "github.com/mattn/go-isatty"
 	"github.com/think-it-labs/notifyme/command"
 	"github.com/think-it-labs/notifyme/config"
 	"github.com/think-it-labs/notifyme/notification"
@@ -52,27 +51,17 @@ func main() {
 		exitUsage()
 	}
 
+	if !isatty.IsTerminal(os.Stdout.Fd()) {
+		log.Warnln("It seems like the output is piped, please refer to https://clinotify.me/piped for more info about this.")
+	}
+
 	cmd := command.New(userCmd)
 	log.Debugf("Command: %s", strings.Join(userCmd, " "))
 
-	tty, err := cmd.StartWithTTY()
+	output, err := cmd.Start()
 	if err != nil {
-		log.Fatalf("Cannot start the command with a new tty: %s\n", err)
+		log.Fatalf("Cannot start the command: %s\n", err)
 	}
-	defer tty.Close()
-
-	go func() {
-		io.Copy(tty, os.Stdin)
-	}()
-
-	// Create a buffer and add it to a multiwriter
-	var output bytes.Buffer
-	dataWriter := io.MultiWriter(os.Stdout, &output)
-
-	// Copy tty output to our multiwriter
-	io.Copy(dataWriter, tty)
-
-	// Wait for the process to exit and get it's status code
 	exitCode := cmd.Wait()
 
 	// Build the notification

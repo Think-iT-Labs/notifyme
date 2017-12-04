@@ -1,11 +1,11 @@
 package command
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"os/exec"
 	"syscall"
-
-	"github.com/kr/pty"
 )
 
 const (
@@ -17,18 +17,22 @@ type Command struct {
 	waitErr error
 }
 
-func New(args []string) Command {
+func New(args []string) *Command {
 	cmd := exec.Command(args[0], args[1:]...)
 
-	return Command{
+	return &Command{
 		Cmd: cmd,
 	}
 }
 
-func (c *Command) StartWithTTY() (*os.File, error) {
-	return pty.Start(c.Cmd)
+func (c *Command) Start() (*bytes.Buffer, error) {
+	output := new(bytes.Buffer)
+	c.Cmd.Stdin = os.Stdin
+	c.Cmd.Stdout = io.MultiWriter(os.Stdout, output)
+	c.Cmd.Stderr = io.MultiWriter(os.Stderr, output)
+	err := c.Cmd.Start()
+	return output, err
 }
-
 func (c *Command) Wait() int {
 	c.waitErr = c.Cmd.Wait()
 	return c.exitCode()
