@@ -3,13 +3,11 @@ package main
 import (
 	"fmt"
 	"os"
-	"os/user"
 	"strings"
 	"sync"
 
-	"path/filepath"
-
 	isatty "github.com/mattn/go-isatty"
+	"github.com/think-it-labs/notifyme/argparser"
 	"github.com/think-it-labs/notifyme/command"
 	"github.com/think-it-labs/notifyme/config"
 	"github.com/think-it-labs/notifyme/notification"
@@ -17,47 +15,43 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var configFile string
+var arguments argparser.Arguments
 
 func init() {
-	// Setup the logger
-	debugModeEnabled := strings.ToLower(os.Getenv("DEBUG")) == "true"
-	if debugModeEnabled {
+	arguments = argparser.MustParse(os.Args[1:])
+
+	// Set default config path if configfile is empty
+	if arguments.ConfigFile == "" {
+		arguments.ConfigFile = config.DefaultConfigPath
+	}
+
+	// Setup log level
+	if len(arguments.Verbose) == 0 {
+		log.SetLevel(log.WarnLevel)
+	} else if len(arguments.Verbose) == 2 {
 		log.SetLevel(log.DebugLevel)
 	}
-
-	// Config file path
-	user, _ := user.Current()
-	configFile = filepath.Join(user.HomeDir, ".notifyme")
-	if os.Getenv("NOTIFYME_CONFIG_FILE") != "" {
-		configFile = os.Getenv("NOTIFYME_CONFIG_FILE")
-	}
-
 }
 
 func main() {
-
-	config, err := config.FromFile(configFile)
+	// Parse the config file
+	log.Infof("Config file: %s", arguments.ConfigFile)
+	cfg, err := config.FromFile(arguments.ConfigFile)
 	if err != nil {
-		if os.IsNotExist(err) {
-			exitNoConfig()
+		if os.IsNotExist(err) && arguments.ConfigFile == config.DefaultConfigPath {
+			exitNoDefaultConfig()
 		} else {
 			exitBadConfig(err)
 		}
-	}
-
-	userCmd := os.Args[1:]
-	if len(userCmd) == 0 {
-		exitUsage()
 	}
 
 	if !isatty.IsTerminal(os.Stdout.Fd()) {
 		log.Warnln("It seems like the output is piped, please refer to https://clinotify.me/piped for more info about this.")
 	}
 
-	cmd := command.New(userCmd)
-	log.Debugf("Command: %s", strings.Join(userCmd, " "))
-
+	// Start the command and wait for it
+	cmd := command.New(arguments.UserCmd)
+	log.Infof("Command: %s", strings.Join(arguments.UserCmd, " "))
 	output, err := cmd.Start()
 	if err != nil {
 		log.Fatalf("Cannot start the command: %s\n", err)
@@ -66,15 +60,15 @@ func main() {
 
 	// Build the notification
 	notificationData := notification.NotificationData{
-		Cmd:      strings.Join(userCmd, " "),
+		Cmd:      strings.Join(arguments.UserCmd, " "),
 		ExitCode: exitCode,
 		Logs:     output.Bytes(),
 	}
 
 	// Build the list of notification to be sent
 	var notifications []notification.Notification
-	if config.MessengerEnabled {
-		for _, token := range config.MessengerTokens {
+	if cfg.MessengerEnabled {
+		for _, token := range cfg.MessengerTokens {
 			if token == "" {
 				continue
 			}
@@ -85,7 +79,7 @@ func main() {
 		}
 	}
 
-	log.Debugf("Sending %d notification(s)", len(notifications))
+	log.Infof("Sending %d notification(s)", len(notifications))
 
 	// Send notifications
 	var wg sync.WaitGroup
@@ -107,28 +101,19 @@ func main() {
 }
 
 func exitBadConfig(err error) {
+	configFile := "BLABL"
 	fmt.Fprintf(os.Stderr, "Error reading config from %s: %s\n", configFile, err)
 	os.Exit(1)
 }
 
-func exitNoConfig() {
+func exitNoDefaultConfig() {
+	configFile := config.DefaultConfigPath
 	fmt.Printf("Configuration file %s cannot be found. Making one for you :)\n", configFile)
-	err := config.CreateDefault(configFile)
+	err := config.CreateDefault()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create configuration file: %s\n", err)
 		os.Exit(1)
 	}
-	fmt.Printf("Configuration file %s have been created, please edit it to start using notify.me\n", configFile)
+	fmt.Printf("Configuration file %s have been created, please edit it to start using NotifyMe\n", configFile)
 	os.Exit(0)
-}
-
-func exitUsage() {
-	fmt.Fprintf(os.Stderr, "%s CMD_HERE ARG1 ARG2 ...\n", os.Args[0])
-	os.Exit(2)
-}
-
-func sliceString(slice []string) string {
-	sliceStr := fmt.Sprintf("%s", slice)[1:]
-	sliceStr = sliceStr[:len(sliceStr)-1]
-	return sliceStr
 }

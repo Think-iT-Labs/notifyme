@@ -3,9 +3,18 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"os/user"
+	"path/filepath"
 
 	"github.com/yosuke-furukawa/json5/encoding/json5"
 )
+
+var DefaultConfigPath string
+
+func init() {
+	user, _ := user.Current()
+	DefaultConfigPath = filepath.Join(user.HomeDir, ".notifyme")
+}
 
 type Config struct {
 	MessengerEnabled bool     `json:"messenger_enabled"`
@@ -28,22 +37,22 @@ func FromFile(filename string) (Config, error) {
 	return config, nil
 }
 
-func CreateDefault(path string) error {
+func CreateDefault() error {
 	configTemplate := `{
-		// This option control whenever messenger notifications are enabled or no
-		"messenger_enabled": true,
-		
-		// Append your messenger tokens here, 
-		// If you don't now you token, ask the Facebook Chat Bot for it.
-		// You can talk to the Chat Bot by sending a message to: https://www.facebook.com/clinotify.me
-		"messenger_tokens": [
-			""
-		],
+	// This option control whenever messenger notifications are enabled or no
+	"messenger_enabled": true,
 	
-		// This option control when notifications should be send.  
-		// Should be one of: "all", "success_only" or "error_only"
-		"enable_for_status": "all"
-	}
+	// Append your messenger tokens here, 
+	// If you don't now you token, ask the Facebook Chat Bot for it.
+	// You can talk to the Chat Bot by sending a message to: https://www.facebook.com/clinotify.me
+	"messenger_tokens": [
+		""
+	],
+
+	// This option control when notifications should be send.  
+	// Should be one of: "all", "success_only" or "error_only"
+	"enable_for_status": "all"
+}
 	`
-	return ioutil.WriteFile(path, []byte(configTemplate), 0644)
+	return ioutil.WriteFile(DefaultConfigPath, []byte(configTemplate), 0644)
 }
