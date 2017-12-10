@@ -1,7 +1,6 @@
 package command
 
 import (
-	"bytes"
 	"io"
 	"os"
 	"os/exec"
@@ -19,19 +18,26 @@ type Command struct {
 
 func New(args []string) *Command {
 	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	return &Command{
 		Cmd: cmd,
 	}
 }
 
-func (c *Command) Start() (*bytes.Buffer, error) {
-	output := new(bytes.Buffer)
-	c.Cmd.Stdin = os.Stdin
-	c.Cmd.Stdout = io.MultiWriter(os.Stdout, output)
-	c.Cmd.Stderr = io.MultiWriter(os.Stderr, output)
+func (c *Command) AddStdoutWriter(writer io.Writer) {
+	c.Stdout = io.MultiWriter(c.Stdout, writer)
+}
+
+func (c *Command) AddStderrWriter(writer io.Writer) {
+	c.Stderr = io.MultiWriter(c.Stderr, writer)
+}
+
+func (c *Command) Start() error {
 	err := c.Cmd.Start()
-	return output, err
+	return err
 }
 func (c *Command) Wait() int {
 	c.waitErr = c.Cmd.Wait()

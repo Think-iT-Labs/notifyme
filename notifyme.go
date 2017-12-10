@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -49,10 +50,16 @@ func main() {
 		log.Warnln("It seems like the output is piped, please refer to https://clinotify.me/piped for more info about this.")
 	}
 
-	// Start the command and wait for it
 	cmd := command.New(arguments.UserCmd)
 	log.Infof("Command: %s", strings.Join(arguments.UserCmd, " "))
-	output, err := cmd.Start()
+
+	// Setup stdout and stderr writers
+	output := new(bytes.Buffer)
+	cmd.AddStdoutWriter(output)
+	cmd.AddStderrWriter(output)
+
+	// Start the command and wait for it
+	err = cmd.Start()
 	if err != nil {
 		log.Fatalf("Cannot start the command: %s\n", err)
 	}
