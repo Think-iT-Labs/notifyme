@@ -7,11 +7,17 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/think-it-labs/notifyme/carriers"
+	"github.com/think-it-labs/notifyme/notification"
+
 	isatty "github.com/mattn/go-isatty"
 	"github.com/think-it-labs/notifyme/argparser"
 	"github.com/think-it-labs/notifyme/command"
 	"github.com/think-it-labs/notifyme/config"
-	"github.com/think-it-labs/notifyme/notification"
+
+	// import carriers so they register they initialize function
+	_ "github.com/think-it-labs/notifyme/carriers/messenger"
+	_ "github.com/think-it-labs/notifyme/carriers/slack"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -66,39 +72,35 @@ func main() {
 	exitCode := cmd.Wait()
 
 	// Build the notification
-	notificationData := notification.NotificationData{
-		Cmd:      strings.Join(arguments.UserCmd, " "),
-		ExitCode: exitCode,
-		Logs:     output.Bytes(),
-	}
+	notif := notification.New(strings.Join(arguments.UserCmd, " "),
+		exitCode,
+		output.Bytes(),
+	)
 
-	// Build the list of notification to be sent
-	var notifications []notification.Notification
-	if cfg.MessengerEnabled {
-		for _, token := range cfg.MessengerTokens {
-			if token == "" {
-				continue
-			}
-			notifications = append(notifications, notification.Messenger{
-				Token:            token,
-				NotificationData: notificationData,
-			})
+	// Build carriers
+	var carriersList []carriers.Carrier
+	for _, carrierConf := range cfg.Carriers {
+		carrier, err := carriers.New(carrierConf)
+		if err != nil {
+			log.Errorf("Error initializing carrier: %v", err)
+			continue
 		}
+		carriersList = append(carriersList, carrier)
 	}
 
-	log.Infof("Sending %d notification(s)", len(notifications))
+	log.Infof("%d carrier ready", len(carriersList))
 
 	// Send notifications
 	var wg sync.WaitGroup
-	wg.Add(len(notifications))
-	for _, notif := range notifications {
-		go func(n notification.Notification) {
-			err := n.Send()
+	wg.Add(len(carriersList))
+	for _, carrier := range carriersList {
+		go func(carrier carriers.Carrier) {
+			err := carrier.Send(notif)
 			if err != nil {
-				log.Errorf("Error sending notification: %s", err)
+				log.Errorf("Error sending notification: %v", err)
 			}
 			wg.Done()
-		}(notif)
+		}(carrier)
 
 	}
 	wg.Wait()
@@ -108,8 +110,8 @@ func main() {
 }
 
 func exitBadConfig(err error) {
-	configFile := "BLABL"
-	fmt.Fprintf(os.Stderr, "Error reading config from %s: %s\n", configFile, err)
+	configFile := arguments.ConfigFile
+	fmt.Fprintf(os.Stderr, "Error reading config from %s: %v\n", configFile, err)
 	os.Exit(1)
 }
 
@@ -118,7 +120,7 @@ func exitNoDefaultConfig() {
 	fmt.Printf("Configuration file %s cannot be found. Making one for you :)\n", configFile)
 	err := config.CreateDefault()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create configuration file: %s\n", err)
+		fmt.Fprintf(os.Stderr, "Failed to create configuration file: %v\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Configuration file %s have been created, please edit it to start using NotifyMe\n", configFile)

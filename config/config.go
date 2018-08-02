@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/yosuke-furukawa/json5/encoding/json5"
+	yaml "gopkg.in/yaml.v2"
 )
 
 var DefaultConfigPath string
@@ -17,8 +17,8 @@ func init() {
 }
 
 type Config struct {
-	MessengerEnabled bool     `json:"messenger_enabled"`
-	MessengerTokens  []string `json:"messenger_tokens"`
+	Carriers       []map[string]interface{} `yaml:"carriers"`
+	withTimestamps bool                     `yaml:"withTimestamps"`
 }
 
 func FromFile(filename string) (Config, error) {
@@ -29,7 +29,7 @@ func FromFile(filename string) (Config, error) {
 
 	var config Config
 
-	err = json5.NewDecoder(file).Decode(&config)
+	err = yaml.NewDecoder(file).Decode(&config)
 	if err != nil {
 		return Config{}, err
 	}
@@ -38,21 +38,16 @@ func FromFile(filename string) (Config, error) {
 }
 
 func CreateDefault() error {
-	configTemplate := `{
-	// This option control whenever messenger notifications are enabled or no
-	"messenger_enabled": true,
-	
-	// Append your messenger tokens here, 
-	// If you don't now you token, ask the Facebook Chat Bot for it.
-	// You can talk to the Chat Bot by sending a message to: https://www.facebook.com/clinotify.me
-	"messenger_tokens": [
-		""
-	],
+	configTemplate := `
+---
+withTimestamps: false
 
-	// This option control when notifications should be send.  
-	// Should be one of: "all", "success_only" or "error_only"
-	"enable_for_status": "all"
-}
+carriers:
+  - type: slack
+    token: "xoxp-XXXXXX"
+    channels: []
+	  # - "@user1"
+	  # - "#general"
 	`
 	return ioutil.WriteFile(DefaultConfigPath, []byte(configTemplate), 0644)
 }

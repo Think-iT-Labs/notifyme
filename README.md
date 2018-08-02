@@ -11,8 +11,8 @@
 
 * [Installation](#installation)
 * [Usage](#usage)
-* [Notifiers](#notifiers)
-    * [Messenger](#messenger)
+* [Carriers](#carriers)
+    * [Slack](#Slack)
 * [Use cases](#use-cases)
 * [Todo](#todo)
 * [License](#license)
@@ -29,43 +29,31 @@ go get github.com/think-it-labs/notifyme
 ```
 
 **NOTE**: the command above will download the repo into your `GOPATH` and build it for you. The resulting binary can be found in `$GOPATH/bin`, we recommend adding `$GOPATH/bin` to your `$PATH`.
-### Prebuild binary
 
-Prebuild binaries are available for both MacOS and Linux. They come in two flavors, 32 bits and 64 bits. Download links can be found in the table below:
+## Carriers
 
-|         | Linux           | MacOS  |
-| ------------- |:-------------:|:-----:|
-| 32 bits      | [Download](https://s3.amazonaws.com/clinotify.me/notifyme_linux32) | [Download](https://s3.amazonaws.com/clinotify.me/notifyme_darwin32) |
-| 64 bits      | [Download](https://s3.amazonaws.com/clinotify.me/notifyme_linux64)      |   [Download](https://s3.amazonaws.com/clinotify.me/notifyme_darwin64) |
+A carrier is a plugin that can deliver a notification. 
+Currently only Slack is implemented as a carrier, others will be be implemented in the near future. Feel free to hack into the project and implement other notifiers.
+### Slack
+By using the Slack carrier you will get notified via slack.
 
-## Notifiers
-Currently only Messenger is implemented as a notifier, others will be be implemented in the near future. Feel free to hack into the project  and implement other notifiers.
-### Messenger
-By using the Messenger notifier you will get notified via Facebook messenger.
+First you need to get your `token` by visiting this page [Slack Token](https://api.slack.com/custom-integrations/legacy-tokens).
 
-First you need to get your `token` by talking to the [NotifyMe](https://www.facebook.com/clinotify.me/) Chat Bot. This can be done by sending `token` or `code` to the bot as shown in the picture below:
-<p align="center">
-    <img height=450 src=".github/MessengerCode.png">
-</p>
+Now that you have your token, edit your `~/.notifyme` config file and add the slack carrier. 
 
-Now that you have your token, edit your `~/.notifyme` config file and add it to `messenger_tokens` list:
-
+Example:
 ```
-{
-    ...
-    "messenger_tokens": [
-        ...
-        "YOUR_TOKEN_HERE"
-    ],
-    ...
-}
+carriers:
+  - type: slack
+    token: "xoxp-XXXXXX"
+    channels:
+    - "@user1"
+    - "#general"
 ```
-
-**NOTE**: You can receive your token at any time by re-sending `token` or `code` to the Chat Bot.
 
 ## Usage
 
-First you need to configure your [notifiers](#notifiers) by setting the right values (mainly tokens) in your `~/.notifyme` config file.
+First you need to configure your [carriers](#carriers) by setting the right values (mainly tokens) in your `~/.notifyme` config file.
 
 Second prepend `notifyme` to your command to get notified when it is finished executing.
 ```
@@ -83,9 +71,10 @@ Use cases for `NotifyMe` are numerous, and here are some tasks that developers r
 - Cron jobs,
 - Long running builds,
 - Backups,
+- Result of long running commands,
 - etc.
 
-is `NotifyMe` making your life simpler? tell us how are you using it :smile: !
+Is `NotifyMe` making your life simpler? tell us how are you using it :smile: !
 
 ## Todo
 
