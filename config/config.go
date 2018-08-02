@@ -48,6 +48,6 @@ carriers:
     channels: []
 	  # - "@user1"
 	  # - "#general"
-	`
+`
 	return ioutil.WriteFile(DefaultConfigPath, []byte(configTemplate), 0644)
 }
