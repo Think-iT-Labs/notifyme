@@ -21,17 +21,17 @@ type Config struct {
 	withTimestamps bool                     `yaml:"withTimestamps"`
 }
 
-func FromFile(filename string) (Config, error) {
+func FromFile(filename string) (*Config, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
-	var config Config
+	config := new(Config)
 
-	err = yaml.NewDecoder(file).Decode(&config)
+	err = yaml.NewDecoder(file).Decode(config)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	return config, nil
