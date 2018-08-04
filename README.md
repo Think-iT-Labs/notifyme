@@ -12,7 +12,7 @@
 * [Installation](#installation)
 * [Usage](#usage)
 * [Carriers](#carriers)
-    * [Slack](#Slack)
+    * [Slack](#slack)
 * [Use cases](#use-cases)
 * [Todo](#todo)
 * [License](#license)
@@ -78,11 +78,12 @@ Is `NotifyMe` making your life simpler? tell us how are you using it :smile: !
 
 ## Todo
 
-- Add flags through environment variables
-- Enrich the configuration and add filters (e.g: only send erroned commands)
-- Support other notifiers
-    - Slack
-- Add a re-execute functionality
+[ ] Add flags through environment variables
+[ ] Enrich the configuration and add filters (e.g: only send erroned commands)
+[ ] Support other notifiers
+    [X] Slack
+    [X] Email
+    [ ] File
 
 ## License
 
