@@ -1,9 +1,10 @@
 ---
 withTimestamps: false
 
-carriers:
+## if splitStreams is set to true, stdout and stderr output will be splitted
+# splitStreams: false
+
+carriers: []
   - type: slack
     token: "xoxp-XXXXXX"
-    channels:
-      - "@user1"
-      - "#general"
+    channels: "@meher, #general"
