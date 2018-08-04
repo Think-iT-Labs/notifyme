@@ -21,6 +21,7 @@ type Config struct {
 	withTimestamps bool                     `yaml:"withTimestamps"`
 }
 
+// FromFile load a configuration given a filename
 func FromFile(filename string) (*Config, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -37,6 +38,7 @@ func FromFile(filename string) (*Config, error) {
 	return config, nil
 }
 
+// CreateDefault creates a sample configutation file at the path `DefaultConfigPath`
 func CreateDefault() error {
 	configTemplate := `
 ---
@@ -45,9 +47,7 @@ withTimestamps: false
 carriers:
   - type: slack
     token: "xoxp-XXXXXX"
-    channels: []
-	  # - "@user1"
-	  # - "#general"
+    channels: "@user1, #general"
 `
 	return ioutil.WriteFile(DefaultConfigPath, []byte(configTemplate), 0644)
 }
