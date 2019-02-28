@@ -16,6 +16,7 @@ import (
 	"github.com/think-it-labs/notifyme/config"
 
 	// import carriers so they register they initialize function
+	_ "github.com/think-it-labs/notifyme/carriers/basecamp"
 	_ "github.com/think-it-labs/notifyme/carriers/file"
 	_ "github.com/think-it-labs/notifyme/carriers/messenger"
 	_ "github.com/think-it-labs/notifyme/carriers/slack"
@@ -83,7 +84,7 @@ func main() {
 	for _, carrierConf := range cfg.Carriers {
 		carrier, err := carriers.New(carrierConf)
 		if err != nil {
-			log.Errorf("Error initializing carrier: %v", err)
+			log.Errorf(err.Error())
 			continue
 		}
 		carriersList = append(carriersList, carrier)

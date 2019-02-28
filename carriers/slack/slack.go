@@ -1,4 +1,4 @@
-package carriers
+package slack
 
 import (
 	"fmt"
