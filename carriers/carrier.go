@@ -34,7 +34,7 @@ func New(conf map[string]interface{}) (Carrier, error) {
 
 	carrier, err := carrierInitializer(conf)
 	if err != nil {
-		return nil, fmt.Errorf("Error initializing carrier %q: %v", carrier, err)
+		return nil, fmt.Errorf("Error initializing carrier %q: %v", carrierType, err)
 	}
 	return carrier, nil
 }
