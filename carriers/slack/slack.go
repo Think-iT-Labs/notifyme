@@ -51,18 +51,14 @@ func (c *Slack) Send(notif *notification.Notification) (err error) {
 	api := slack.New(c.Token)
 
 	postMessage := buildPostMessage(notif)
-	title := ""
 
 	// Send notifications
 	var wg sync.WaitGroup
 	wg.Add(len(c.channels))
 	for _, channel := range c.channels {
 		go func(channel string) {
-			_, _, err = api.PostMessage(
-				channel,
-				title,
-				postMessage,
-			)
+			_, _, err = api.PostMessage(channel, postMessage)
+
 			wg.Done()
 		}(channel)
 
@@ -72,7 +68,7 @@ func (c *Slack) Send(notif *notification.Notification) (err error) {
 	return
 }
 
-func buildPostMessage(notif *notification.Notification) slack.PostMessageParameters {
+func buildPostMessage(notif *notification.Notification) slack.MsgOption {
 
 	body := fmt.Sprintf("```\n%s```", notif.Logs)
 	cmd := fmt.Sprintf("$ %s", notif.Cmd)
@@ -80,7 +76,7 @@ func buildPostMessage(notif *notification.Notification) slack.PostMessageParamet
 	if notif.ExitCode != 0 {
 		color = REDCOLOR
 	}
-	params := slack.NewPostMessageParameters()
+
 	attachment := slack.Attachment{
 		Color: color,
 		Fields: []slack.AttachmentField{
@@ -92,7 +88,7 @@ func buildPostMessage(notif *notification.Notification) slack.PostMessageParamet
 		Text: body,
 	}
 
-	params.Attachments = []slack.Attachment{attachment}
+	attachmentOpts := slack.MsgOptionAttachments(attachment)
 
-	return params
+	return slack.MsgOptionCompose(attachmentOpts)
 }
