@@ -25,7 +25,7 @@
 
 Once done, `get` the code by running:
 ```shell
-go get github.com/think-it-labs/notifyme
+go get github.com/think-it-labs/notifyme/cmd
 ```
 
 **NOTE**: the command above will download the repo into your `GOPATH` and build it for you. The resulting binary can be found in `$GOPATH/bin`, we recommend adding `$GOPATH/bin` to your `$PATH`.
@@ -46,9 +46,7 @@ Example:
 carriers:
   - type: slack
     token: "xoxp-XXXXXX"
-    channels:
-    - "@user1"
-    - "#general"
+    channels: "@user, #general"
 ```
 
 ## Usage
